@@ -14,6 +14,7 @@
  */
 #include "modes.h"
 #include "registry.h"
+#include "targets/cpp/target.h"
 #include "targets/cpu/target.h"
 #include "targets/k210/target.h"
 #include "targets/target.h"
@@ -99,6 +100,8 @@ std::unique_ptr<target> create_target(const compile_options &options)
             return std::make_unique<k210_target>();
         else if (options.target == "cpu")
             return std::make_unique<cpu_target>();
+        else if (options.target == "cpp")
+            return std::make_unique<cpp_target>();
         else
             throw std::invalid_argument("Invalid target: " + options.target);
     }
@@ -203,12 +206,11 @@ void gencode(target &target, graph &graph, const compile_options &options)
 {
     SCHEDULE_IMPL();
 
-    std::ofstream outfile(options.output_filename, std::ios::binary | std::ios::out);
-    if (outfile.bad())
-        throw std::runtime_error("Cannot open file for output: " + options.output_filename);
-
-    codegen_context codegen_ctx(outfile, allocators, alloc_ctx.allocations());
-    codegen::gencode(codegen_ctx, compute_sequence);
+    codegen_context codegen_ctx(options.output_filename, allocators, alloc_ctx.allocations());
+    if (options.target == "cpp")
+        codegen::gen_cpp(codegen_ctx, compute_sequence);
+    else
+        codegen::gen_kmodel(codegen_ctx, compute_sequence);
 }
 }
 

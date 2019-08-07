@@ -41,7 +41,7 @@ namespace kernels
                         int in_x_origin = (ox * stride_w) - padding_w.before;
                         int filter_y_start = std::max(0, (-in_y_origin + dilation_h - 1) / dilation_h);
                         int filter_y_end = std::min(filter_h, (in_shape[1] - in_y_origin + dilation_h - 1) / dilation_h);
-                        int filter_xSstart = std::max(0, (-in_x_origin + dilation_w - 1) / dilation_w);
+                        int filter_x_start = std::max(0, (-in_x_origin + dilation_w - 1) / dilation_w);
                         int filter_x_end = std::min(filter_w, (in_shape[2] - in_x_origin + dilation_w - 1) / dilation_w);
 
                         for (int oc = 0; oc < out_channels; oc++)
@@ -51,7 +51,7 @@ namespace kernels
 
                             for (int ky = filter_y_start; ky < filter_y_end; ky++)
                             {
-                                for (int kx = filter_xSstart; kx < filter_x_end; kx++)
+                                for (int kx = filter_x_start; kx < filter_x_end; kx++)
                                 {
                                     int in_y = in_y_origin + dilation_h * ky;
                                     int in_x = in_x_origin + dilation_w * kx;

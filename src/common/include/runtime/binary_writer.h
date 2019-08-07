@@ -15,6 +15,7 @@
 #pragma once
 #include <iostream>
 #include <xtl/xspan.hpp>
+#include <string_view>
 
 namespace nncase
 {
@@ -38,6 +39,11 @@ namespace runtime
         void write_array(xtl::span<const T> value)
         {
             stream_.write(reinterpret_cast<const char *>(value.data()), value.size_bytes());
+        }
+
+        void write_string(std::string_view value)
+        {
+            stream_ << value;
         }
 
         std::streampos position() const

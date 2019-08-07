@@ -14,7 +14,7 @@
  */
 #pragma once
 #include <datatypes.h>
-#include <iostream>
+#include <filesystem>
 #include <ir/graph.h>
 #include <runtime/binary_writer.h>
 #include <runtime/runtime_op.h>
@@ -27,7 +27,7 @@ namespace codegen
     class codegen_context
     {
     public:
-        codegen_context(std::ostream &output, const std::unordered_map<memory_type_t, scheduler::memory_allocator *> &allocators, const std::unordered_map<ir::output_connector *, scheduler::memory_allocation> &allocations);
+        codegen_context(const std::filesystem::path &output_path, const std::unordered_map<memory_type_t, scheduler::memory_allocator *> &allocators, const std::unordered_map<ir::output_connector *, scheduler::memory_allocation> &allocations);
 
         memory_range get_allocation(ir::input_connector &conn) const
         {
@@ -38,10 +38,10 @@ namespace codegen
         uint32_t memory_usage() const noexcept { return (uint32_t)allocators_.at(mem_main)->max_usage(); }
         uint32_t constant_usage() const noexcept { return (uint32_t)allocators_.at(mem_const)->max_usage(); }
 
-        runtime::binary_writer &writer() noexcept { return writer_; }
+        const std::filesystem::path &output_path() noexcept { return output_path_; }
 
     private:
-        runtime::binary_writer writer_;
+        std::filesystem::path output_path_;
         const std::unordered_map<memory_type_t, scheduler::memory_allocator *> &allocators_;
         const std::unordered_map<ir::output_connector *, scheduler::memory_allocation> &allocations_;
     };
@@ -70,6 +70,7 @@ namespace codegen
 
     void register_emitter(ir::node_opcode opcode, emitter_t emitter);
     void disable_emitter(ir::node_opcode opcode);
-    void gencode(codegen_context &context, xtl::span<ir::node *> compute_sequence);
+    void gen_kmodel(codegen_context &context, xtl::span<ir::node *> compute_sequence);
+    void gen_cpp(codegen_context &context, xtl::span<ir::node *> compute_sequence);
 }
 }
